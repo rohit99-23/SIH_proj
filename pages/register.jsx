@@ -88,33 +88,3 @@ export default function Register() {
     </div>
   );
 }
-
-// Firestore rules (paste into Firebase Console -> Firestore -> Rules)
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // users collection: each user can read their own doc, admins can read/write users/invites
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId; // user creates their own profile on signup
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false;
-    }
-
-    // invites: only admins (based on their users/<uid>.role) can create or delete invites
-    match /invites/{inviteId} {
-      allow read: if request.auth != null && (
-        request.auth.uid == inviteId || // allow reading own invite doc (if inviteId is uid/email-based key)
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
-      );
-      allow create, delete: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-      allow update: if false;
-    }
-
-    // default: deny
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
