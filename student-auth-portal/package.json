@@ -1,0 +1,29 @@
+{
+  "name": "student-auth-portal",
+  "version": "1.0.0",
+  "description": "A web application for student and faculty authentication, with admin capabilities.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "firebase": "^9.0.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "eslint-config-next": "latest"
+  },
+  "keywords": [
+    "authentication",
+    "students",
+    "faculty",
+    "admin"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
