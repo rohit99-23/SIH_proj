@@ -2,7 +2,7 @@ node_modules/
 .next/
 .env
 .env.local
-serviceAccountKey.json
+/serviceAccountKey.json
 .DS_Store
 npm-debug.log
 yarn-error.log

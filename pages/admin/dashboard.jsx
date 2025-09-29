@@ -1,57 +1,116 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { auth, db } from "../../src/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import AdminLayout from "../../components/AdminLayout";
+import styles from "../../styles/admin.module.css";
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("student");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-
+export default function DashboardPage() {
+  const [users, setUsers] = useState([]);
+  // placeholder data (replace with real API/Firestore calls)
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) return router.replace("/admin/login");
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (!snap.exists() || snap.data().role !== "admin") {
-        await signOut(auth);
-        return router.replace("/admin/login");
-      }
-      setLoading(false);
-    });
-    return unsub;
+    setUsers([
+      { id: "u1", email: "aila@student.com", role: "student" },
+      { id: "u2", email: "dr.bharst@uni.edu", role: "faculty" },
+    ]);
   }, []);
 
-  async function handleInvite(e) {
-    e.preventDefault();
-    setMessage("");
-    try {
-      const key = email.trim().toLowerCase().replace(/\./g, ','); // stable key
-      await setDoc(doc(db, "invites", key), { email, role, invitedAt: new Date().toISOString() });
-      setMessage(`Invite created for ${email} as ${role}`);
-      setEmail("");
-    } catch (err) {
-      setMessage(err.message || "Failed to create invite");
-    }
-  }
-
-  if (loading) return <div style={{margin:40}}>Loading...</div>;
   return (
-    <div style={{maxWidth:480, margin:40}}>
-      <h2>Admin — Create Invite</h2>
-      <form onSubmit={handleInvite}>
-        <label>User email</label>
-        <input style={{width:"100%",padding:8}} value={email} onChange={e=>setEmail(e.target.value)} type="email" required />
-        <label style={{marginTop:8}}>Role</label>
-        <select style={{width:"100%",padding:8}} value={role} onChange={e=>setRole(e.target.value)}>
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-        </select>
-        <button style={{marginTop:12,padding:8,width:"100%"}} type="submit">Create Invite</button>
-      </form>
-      {message && <div style={{marginTop:12}}>{message}</div>}
-    </div>
+    <AdminLayout>
+      <section className={styles.overview}>
+        <div className={styles.metrics}>
+          <div className={`${styles.metricCard} ${styles.metricCard1}`}>
+            <div className={styles.metricTitle}>Total Students</div>
+            <div className={styles.metricValue}>1,370</div>
+            <div className={styles.metricSub}>+28 this week</div>
+          </div>
+          <div className={`${styles.metricCard} ${styles.metricCard2}`}>
+            <div className={styles.metricTitle}>Total Faculty</div>
+            <div className={styles.metricValue}>75</div>
+            <div className={styles.metricSub}>+3 this month</div>
+          </div>
+          <div className={`${styles.metricCard} ${styles.metricCard3}`}>
+            <div className={styles.metricTitle}>Verified Submissions</div>
+            <div className={styles.metricValue}>20%</div>
+            <div className={styles.metricSub}>92% approval rate</div>
+          </div>
+          <div className={`${styles.metricCard} ${styles.metricCard4}`}>
+            <div className={styles.metricTitle}>Pending Approvals</div>
+            <div className={styles.metricValue}>130</div>
+            <div className={styles.metricSub}>57% this week</div>
+          </div>
+        </div>
+
+        <div className={styles.gridMain}>
+          <div className={styles.leftColumn}>
+            <div className={styles.card}>
+              <h3>Submission Trends (Monthly)</h3>
+              <div className={styles.chartPlaceholder}>[Bar chart placeholder]</div>
+            </div>
+
+            <div className={styles.card}>
+              <h3>User Management</h3>
+              <div className={styles.userMgmt}>
+                <button className={styles.tab}>Students</button>
+                <button className={styles.tab}>Faculty</button>
+                <div className={styles.smallChart}>[mini-line]</div>
+              </div>
+            </div>
+
+            <div className={styles.card}>
+              <h3>Pending Submissions</h3>
+              <table className={styles.table}>
+                <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>Aila Student</td>
+                    <td>aila@student.com</td>
+                    <td>Pending</td>
+                    <td>
+                      <button className={styles.small}>Approve</button>
+                      <button className={styles.smallAlt}>Reject</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside className={styles.rightColumn}>
+            <div className={styles.card}>
+              <h4>Active Users by Role</h4>
+              <div className={styles.chartPlaceholder}>[Donut placeholder]</div>
+            </div>
+
+            <div className={styles.card}>
+              <h4>Invitations</h4>
+              <div className={styles.inviteList}>
+                <div className={styles.inviteItem}>
+                  <div>
+                    <strong>Dr Bharst</strong>
+                    <div className={styles.inviteEmail}>dr.bharst@uni.edu</div>
+                  </div>
+                  <div className={styles.inviteActions}>
+                    <button className={styles.small}>Resend</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.card}>
+              <h4>Admin Profile</h4>
+              <div className={styles.profileBox}>You are Admin</div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </AdminLayout>
   );
 }
+
+// NOTE: remove any of these blocks if present in this file:
+// export async function getStaticProps(...) { ... }
+// export async function getStaticPaths(...) { ... }
+
+// If you need SSR, keep only getServerSideProps (example):
+// export async function getServerSideProps(context) {
+//   // perform server-side admin check (optional)
+//   return { props: {} };
+// }
